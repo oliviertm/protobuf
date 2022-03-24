@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: latin-1 -*-
-# Code made for Python 2.6 on Linux
+# Code for Python 3.8.5
 import sys
 from struct import unpack
 
@@ -9,7 +9,7 @@ class ProtoBufAnalyserError(Exception):
     Class for error in the parameters provided to this script
     """
     def __init__(self, msg):    
-        print "ERROR : " + msg
+        print(ERROR : " + msg)
         sys.exit(1)
         pass
 
@@ -35,20 +35,20 @@ class ProtoBufAnalyser(object):
         while stop == False:
             fieldNum, wireType = self.readKey()
             if wireType >= 0 and wireType <= 5:
-                 print "fieldNum=" + repr(fieldNum) + " wire type=" + repr(wireType) + " ("  + self._wireTypes[wireType] + ")"
+                 print("fieldNum=" + repr(fieldNum) + " wire type=" + repr(wireType) + " ("  + self._wireTypes[wireType] + ")")
             if wireType == 0: #Varint
                 val = self.readVarint()
-                print "    Read Varint: " + repr(val)
+                print("    Read Varint: " + repr(val))
             elif wireType == 1: #64-bit (16 hex char)
                 signedFixed, unsignedFixed, floatingPoint = self.readFixedLen(16)
-                print "    Read 64-bit: " + repr(signedFixed) + " (fixed64) " + repr(unsignedFixed) + " (unsigned fixed64) " + repr(floatingPoint) + " (float64) "
+                print("    Read 64-bit: " + repr(signedFixed) + " (fixed64) " + repr(unsignedFixed) + " (unsigned fixed64) " + repr(floatingPoint) + " (float64) ")
             elif wireType == 2: #Length-delimited
                 val = self.readDelimited()
                 try:
-                    asciiVal = " (ASCII): " + val.decode('hex')
+                    asciiVal = " (ASCII): " + str(bytes.fromhex(val)) # For Python version <= 2.7, use val.decode('hex') instead str(bytes.fromhex(val))
                 except TypeError as e:
                     raise ProtoBufAnalyserError("Odd hexadecimal data lengh which doesn't correspond to bytes : " + str(e) )
-                print "    Read Length-delimited (hex): " + repr(val) + asciiVal
+                print("    Read Length-delimited (hex): " + repr(val) + asciiVal)
             elif wireType == 3: #Start group (deprecated)
                 stop  = True
                 raise ProtoBufAnalyserError("Start group field detected but this is a depricated protobuf field not supported by this script" )
@@ -57,13 +57,13 @@ class ProtoBufAnalyser(object):
                 raise ProtoBufAnalyserError("End group field detected but this is a depricated protobuf field not supported by this script" )
             elif wireType == 5: #32-bit (8 hex char)
                 signedFixed, unsignedFixed, floatingPoint = self.readFixedLen(8)
-                print "    Read 32-bit: " + repr(signedFixed) + " (fixed32) " + repr(unsignedFixed) + " (unsigned fixed32) " + repr(floatingPoint) + " (float32) "
+                print("    Read 32-bit: " + repr(signedFixed) + " (fixed32) " + repr(unsignedFixed) + " (unsigned fixed32) " + repr(floatingPoint) + " (float32) ")
             else:
                 stop = True
                 raise ProtoBufAnalyserError("Invalid wire type detected : " + repr(wireType) + " with field number: " + repr(fieldNum) )
             if self._readIdx >= len(self._data):
                 stop = True
-                print "End of protobuf reached without error"
+                print("End of protobuf reached without error")
 
     def readKey(self):
         '''
