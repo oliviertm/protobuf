@@ -1,4 +1,4 @@
-# Protobuf decoder
+# Protobuf Analyser
 
 ## Usage
 
